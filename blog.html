@@ -42,27 +42,17 @@
     </div>
   </footer>
   <script>
-    //// Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
-
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
-const firebaseConfig = {
-  apiKey: "AIzaSyDDnYzPqRODyC41bfl1p_4cf7b2Mbe_2JI",
-  authDomain: "my-blog-66d3f.firebaseapp.com",
-  projectId: "my-blog-66d3f",
-  storageBucket: "my-blog-66d3f.firebasestorage.app",
-  messagingSenderId: "932194405146",
-  appId: "1:932194405146:web:dea2830c55f99ea99dbaa3",
-  measurementId: "G-GJL42Q0PSP"
-};
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
+    // Firebase Config
+    const firebaseConfig = {
+      apiKey: "AIzaSyDDnYzPqRODyC41bfl1p_4cf7b2Mbe_2JI",
+      authDomain: "my-blog-66d3f.firebaseapp.com",
+      projectId: "my-blog-66d3f",
+      storageBucket: "my-blog-66d3f.appspot.com",
+      messagingSenderId: "932194405146",
+      appId: "1:932194405146:web:dea2830c55f99ea99dbaa3",
+      measurementId: "G-GJL42Q0PSP"
+    };
+    firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const db = firebase.firestore();
 
@@ -101,13 +91,14 @@ const analytics = getAnalytics(app);
 
     auth.onAuthStateChanged(updateUserUI);
 
-    // Blog Form
+    // Blog Form Handler
     document.getElementById('blog-form')?.addEventListener('submit', async e => {
       e.preventDefault();
-      const title = document.getElementById('blog-title').value;
-      const content = document.getElementById('blog-content').value;
+      const title = document.getElementById('blog-title').value.trim();
+      const content = document.getElementById('blog-content').value.trim();
       const user = auth.currentUser;
-      if(!user) return alert("Login required");
+      if (!user) return alert("Login required");
+      if (!title || !content) return alert("Title aur content likhna zaruri hai!");
       await db.collection('blogs').add({
         title, content,
         author: user.email,
@@ -116,7 +107,7 @@ const analytics = getAnalytics(app);
       document.getElementById('blog-form').reset();
     });
 
-    // Blog List with Comments
+    // Render Comments Section for Each Blog
     function renderComments(blogId, container) {
       const commentsDiv = document.createElement('div');
       commentsDiv.className = "mt-4";
@@ -128,22 +119,24 @@ const analytics = getAnalytics(app);
       `;
       container.appendChild(commentsDiv);
 
-      // Load comments
-      db.collection('blogs').doc(blogId).collection('comments').orderBy('created').onSnapshot(snap => {
-        const commentsEl = document.getElementById(`comments-${blogId}`);
-        commentsEl.innerHTML = "";
-        snap.forEach(doc => {
-          const c = doc.data();
-          commentsEl.innerHTML += `<div class="p-2 border-b"><b>${c.author}</b>: ${c.text}</div>`;
+      // Load comments live
+      db.collection('blogs').doc(blogId).collection('comments').orderBy('created')
+        .onSnapshot(snap => {
+          const commentsEl = document.getElementById(`comments-${blogId}`);
+          commentsEl.innerHTML = "";
+          snap.forEach(doc => {
+            const c = doc.data();
+            commentsEl.innerHTML += `<div class="p-2 border-b"><b>${c.author}</b>: ${c.text}</div>`;
+          });
         });
-      });
 
-      // Comment form
+      // Comment Form Handler
       document.getElementById(`comment-form-${blogId}`).addEventListener('submit', async e => {
         e.preventDefault();
         const user = auth.currentUser;
         if(!user) return alert("Login required for comment");
-        const text = document.getElementById(`comment-input-${blogId}`).value;
+        const text = document.getElementById(`comment-input-${blogId}`).value.trim();
+        if (!text) return;
         await db.collection('blogs').doc(blogId).collection('comments').add({
           text, author: user.email, created: firebase.firestore.FieldValue.serverTimestamp()
         });
@@ -151,10 +144,33 @@ const analytics = getAnalytics(app);
       });
     }
 
-    // Blog List Show
+    // Blog List Show (live update)
     db.collection('blogs').orderBy('created', 'desc').onSnapshot(snap => {
       const blogList = document.getElementById('blog-list');
       blogList.innerHTML = "";
+      if (snap.empty) {
+        // Default demo blog post if no real blog yet
+        const demoDiv = document.createElement('div');
+        demoDiv.className = "bg-white rounded-lg shadow-md p-6 mb-8";
+        demoDiv.innerHTML = `
+          <h3 class="text-2xl font-bold mb-2">Demo Blog Post</h3>
+          <p class="text-gray-600 text-sm mb-2">Author: Admin | 8 June 2025</p>
+          <p class="mb-4">Yeh demo blog post hai. Jab koi naya blog likhega, vo yahan dikhne lagega. Neeche comment ka option diya gaya hai!</p>
+          <div class="mt-4">
+            <h4 class="font-semibold mb-2">Comments</h4>
+            <div>
+              <div class="p-2 border-b"><b>User1</b>: Bahut accha blog hai!</div>
+              <div class="p-2 border-b"><b>User2</b>: Shukriya share karne ke liye.</div>
+            </div>
+            <form class="flex space-x-2 mt-2" onsubmit="alert('Demo post par comment nahi kar sakte!');return false;">
+              <input type="text" class="border p-1 rounded flex-1" placeholder="Write a comment..." required>
+              <button type="submit" class="bg-red-600 text-white px-2 py-1 rounded">Post</button>
+            </form>
+          </div>
+        `;
+        blogList.appendChild(demoDiv);
+        return;
+      }
       snap.forEach(doc => {
         const blog = doc.data();
         const div = document.createElement('div');
