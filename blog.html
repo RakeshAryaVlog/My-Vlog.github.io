@@ -14,12 +14,15 @@
 <body class="bg-gray-100 font-sans">
   <nav class="bg-red-600 text-white p-4 sticky top-0 z-10">
     <div class="container mx-auto flex justify-between items-center">
-      <h1 class="text-2xl font-bold"><a href="index.html" class="hover:text-yellow-300">Cheerful Taffy Blog</a></h1>
+      <h1 class="text-2xl font-bold"><a class="hover:text-yellow-300" href="/">Cheerful Taffy Blog</a></h1>
       <ul class="flex space-x-6">
-        <li><a href="index.html" class="hover:underline">Home</a></li>
-        <li><a href="blog.html" class="hover:underline font-bold underline">Blog</a></li>
+        <li><a class="hover:underline" href="/">Home</a></li>
+        <li><a class="hover:underline font-bold underline" href="/blog">Blog</a></li>
       </ul>
-      <div id="user-info" class="flex items-center space-x-2"></div>
+      <div id="user-info" class="flex items-center space-x-2">
+        <button onclick="showRegisterForm()" class="bg-white text-red-600 px-3 py-1 rounded mr-2">Register</button>
+        <button onclick="showLoginForm()" class="bg-white text-red-600 px-3 py-1 rounded">Login</button>
+      </div>
     </div>
   </nav>
   <section class="max-w-3xl mx-auto py-12 px-4">
@@ -28,8 +31,8 @@
     <div id="blog-form-container" class="mb-8 hidden">
       <form id="blog-form" class="bg-white rounded-lg shadow-md p-6 mb-8">
         <h3 class="text-xl font-bold mb-2">Naya Blog Likhein</h3>
-        <input type="text" id="blog-title" placeholder="Title" class="w-full border p-2 mb-2 rounded" required />
-        <textarea id="blog-content" placeholder="Blog content..." class="w-full border p-2 mb-2 rounded" required></textarea>
+        <input type="text" id="blog-title" placeholder="Title" class="w-full border p-2 mb-2 rounded" required="">
+        <textarea id="blog-content" placeholder="Blog content..." class="w-full border p-2 mb-2 rounded" required=""></textarea>
         <button type="submit" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">Post</button>
       </form>
     </div>
@@ -38,9 +41,10 @@
   </section>
   <footer class="bg-red-600 text-white p-4 mt-16">
     <div class="container mx-auto text-center">
-      <p>&copy; 2025 Cheerful Taffy. All rights reserved.</p>
+      <p>© 2025 Cheerful Taffy. All rights reserved.</p>
     </div>
   </footer>
+  <!-- Place your script here so DOM is loaded -->
   <script>
     // Firebase Config
     const firebaseConfig = {
@@ -147,6 +151,7 @@
     // Blog List Show (live update)
     db.collection('blogs').orderBy('created', 'desc').onSnapshot(snap => {
       const blogList = document.getElementById('blog-list');
+      if (!blogList) return; // Defensive: abort if not found
       blogList.innerHTML = "";
       if (snap.empty) {
         // Default demo blog post if no real blog yet
@@ -173,11 +178,15 @@
       }
       snap.forEach(doc => {
         const blog = doc.data();
+        let created = '';
+        if (blog.created && blog.created.toDate) {
+          created = blog.created.toDate().toLocaleString();
+        }
         const div = document.createElement('div');
         div.className = "bg-white rounded-lg shadow-md p-6 mb-8";
         div.innerHTML = `
           <h3 class="text-2xl font-bold mb-2">${blog.title}</h3>
-          <p class="text-gray-600 text-sm mb-2">Author: ${blog.author || 'Unknown'} | ${blog.created?.toDate().toLocaleString() || ''}</p>
+          <p class="text-gray-600 text-sm mb-2">Author: ${blog.author || 'Unknown'} | ${created}</p>
           <p class="mb-4">${blog.content}</p>
         `;
         renderComments(doc.id, div);
