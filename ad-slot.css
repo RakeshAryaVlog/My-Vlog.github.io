@@ -1,0 +1,17 @@
+.ad-slot {
+  min-height: 120px;
+  max-height: 150px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f3f3f3;
+  border: 1px dashed #ccc;
+}
+@media (max-width: 1024px) {
+  .ad-slot { min-height: 80px; }
+  .w-32 { width: 80px; }
+}
+@media (max-width: 768px) {
+  .flex { flex-direction: column !important; }
+  .w-32 { width: 100%; }
+}

@@ -25,26 +25,51 @@
       </div>
     </div>
   </nav>
-  <section class="max-w-3xl mx-auto py-12 px-4">
-    <h2 class="text-4xl font-bold text-center mb-10">Latest Blog Posts</h2>
-    <!-- Blog Post Form (Only visible to logged in users) -->
-    <div id="blog-form-container" class="mb-8 hidden">
-      <form id="blog-form" class="bg-white rounded-lg shadow-md p-6 mb-8">
-        <h3 class="text-xl font-bold mb-2">Naya Blog Likhein</h3>
-        <input type="text" id="blog-title" placeholder="Title" class="w-full border p-2 mb-2 rounded" required="">
-        <textarea id="blog-content" placeholder="Blog content..." class="w-full border p-2 mb-2 rounded" required=""></textarea>
-        <button type="submit" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">Post</button>
-      </form>
+  
+  <!-- Ad & Blog Layout Start -->
+  <div class="flex justify-center items-start gap-4 px-2 py-6">
+    <!-- Left Ad Column -->
+    <div class="flex flex-col gap-4 w-32">
+      <div class="ad-slot bg-gray-200 rounded shadow h-32 flex items-center justify-center text-xs">Ad Slot 1</div>
+      <div class="ad-slot bg-gray-200 rounded shadow h-32 flex items-center justify-center text-xs">Ad Slot 2</div>
+      <div class="ad-slot bg-gray-200 rounded shadow h-32 flex items-center justify-center text-xs">Ad Slot 3</div>
+      <div class="ad-slot bg-gray-200 rounded shadow h-32 flex items-center justify-center text-xs">Ad Slot 4</div>
+      <div class="ad-slot bg-gray-200 rounded shadow h-32 flex items-center justify-center text-xs">Ad Slot 5</div>
     </div>
-    <!-- Blog List -->
-    <div id="blog-list"></div>
-  </section>
+    
+    <!-- Main Blog Content -->
+    <section class="flex-1 max-w-3xl mx-auto px-2">
+      <h2 class="text-4xl font-bold text-center mb-10">Latest Blog Posts</h2>
+      <!-- Blog Post Form (Only visible to logged in users) -->
+      <div id="blog-form-container" class="mb-8 hidden">
+        <form id="blog-form" class="bg-white rounded-lg shadow-md p-6 mb-8">
+          <h3 class="text-xl font-bold mb-2">Naya Blog Likhein</h3>
+          <input type="text" id="blog-title" placeholder="Title" class="w-full border p-2 mb-2 rounded" required="">
+          <textarea id="blog-content" placeholder="Blog content..." class="w-full border p-2 mb-2 rounded" required=""></textarea>
+          <button type="submit" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">Post</button>
+        </form>
+      </div>
+      <!-- Blog List -->
+      <div id="blog-list"></div>
+    </section>
+    
+    <!-- Right Ad Column -->
+    <div class="flex flex-col gap-4 w-32">
+      <div class="ad-slot bg-gray-200 rounded shadow h-32 flex items-center justify-center text-xs">Ad Slot 6</div>
+      <div class="ad-slot bg-gray-200 rounded shadow h-32 flex items-center justify-center text-xs">Ad Slot 7</div>
+      <div class="ad-slot bg-gray-200 rounded shadow h-32 flex items-center justify-center text-xs">Ad Slot 8</div>
+      <div class="ad-slot bg-gray-200 rounded shadow h-32 flex items-center justify-center text-xs">Ad Slot 9</div>
+      <div class="ad-slot bg-gray-200 rounded shadow h-32 flex items-center justify-center text-xs">Ad Slot 10</div>
+    </div>
+  </div>
+  <!-- Ad & Blog Layout End -->
+  
   <footer class="bg-red-600 text-white p-4 mt-16">
     <div class="container mx-auto text-center">
       <p>© 2025 Cheerful Taffy. All rights reserved.</p>
     </div>
   </footer>
-  <!-- Place your script here so DOM is loaded -->
+  <!-- Rest of your script is the same as before -->
   <script>
     // Firebase Config
     const firebaseConfig = {
