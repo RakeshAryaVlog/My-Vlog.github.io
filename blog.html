@@ -42,18 +42,27 @@
     </div>
   </footer>
   <script>
-    // Firebase Config (aapka config yahan hai)
-    const firebaseConfig = {
-      apiKey: "AIzaSyDDnYzPqRODyC41bfl1p_4cf7b2Mbe_2JI",
-      authDomain: "my-blog-66d3f.firebaseapp.com",
-      projectId: "my-blog-66d3f",
-      storageBucket: "my-blog-66d3f.appspot.com",
-      messagingSenderId: "932194405146",
-      appId: "1:932194405146:web:dea2830c55f99ea99dbaa3",
-      measurementId: "G-GJL42Q0PSP"
-    };
+    //// Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
 
-    firebase.initializeApp(firebaseConfig);
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyDDnYzPqRODyC41bfl1p_4cf7b2Mbe_2JI",
+  authDomain: "my-blog-66d3f.firebaseapp.com",
+  projectId: "my-blog-66d3f",
+  storageBucket: "my-blog-66d3f.firebasestorage.app",
+  messagingSenderId: "932194405146",
+  appId: "1:932194405146:web:dea2830c55f99ea99dbaa3",
+  measurementId: "G-GJL42Q0PSP"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
     const auth = firebase.auth();
     const db = firebase.firestore();
 
@@ -92,7 +101,7 @@
 
     auth.onAuthStateChanged(updateUserUI);
 
-    // Blog Form Handler
+    // Blog Form
     document.getElementById('blog-form')?.addEventListener('submit', async e => {
       e.preventDefault();
       const title = document.getElementById('blog-title').value;
@@ -107,7 +116,7 @@
       document.getElementById('blog-form').reset();
     });
 
-    // Render Comments Section for Each Blog
+    // Blog List with Comments
     function renderComments(blogId, container) {
       const commentsDiv = document.createElement('div');
       commentsDiv.className = "mt-4";
@@ -119,7 +128,7 @@
       `;
       container.appendChild(commentsDiv);
 
-      // Load comments live
+      // Load comments
       db.collection('blogs').doc(blogId).collection('comments').orderBy('created').onSnapshot(snap => {
         const commentsEl = document.getElementById(`comments-${blogId}`);
         commentsEl.innerHTML = "";
@@ -129,7 +138,7 @@
         });
       });
 
-      // Comment Form Handler
+      // Comment form
       document.getElementById(`comment-form-${blogId}`).addEventListener('submit', async e => {
         e.preventDefault();
         const user = auth.currentUser;
@@ -142,33 +151,10 @@
       });
     }
 
-    // Blog List Show (live update)
+    // Blog List Show
     db.collection('blogs').orderBy('created', 'desc').onSnapshot(snap => {
       const blogList = document.getElementById('blog-list');
       blogList.innerHTML = "";
-      if (snap.empty) {
-        // Default demo blog post if no real blog yet
-        const demoDiv = document.createElement('div');
-        demoDiv.className = "bg-white rounded-lg shadow-md p-6 mb-8";
-        demoDiv.innerHTML = `
-          <h3 class="text-2xl font-bold mb-2">Lekha How Blog</h3>
-          <p class="text-gray-600 text-sm mb-2">Author: Admin | 8 June 2025</p>
-          <p class="mb-4">Yeh demo blog post hai. Yahan aap apna blog likh sakte hain. Neeche comment ka option diya gaya hai!</p>
-          <div class="mt-4">
-            <h4 class="font-semibold mb-2">Comments</h4>
-            <div>
-              <div class="p-2 border-b"><b>User1</b>: Bahut accha blog hai!</div>
-              <div class="p-2 border-b"><b>User2</b>: Shukriya share karne ke liye.</div>
-            </div>
-            <form class="flex space-x-2 mt-2" onsubmit="alert('Demo post par comment nahi kar sakte!');return false;">
-              <input type="text" class="border p-1 rounded flex-1" placeholder="Write a comment..." required>
-              <button type="submit" class="bg-red-600 text-white px-2 py-1 rounded">Post</button>
-            </form>
-          </div>
-        `;
-        blogList.appendChild(demoDiv);
-        return;
-      }
       snap.forEach(doc => {
         const blog = doc.data();
         const div = document.createElement('div');
