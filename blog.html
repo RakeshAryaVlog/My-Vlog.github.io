@@ -1,45 +1,266 @@
-<!-- ... head and navbar unchanged ... -->
-
-<!-- Blog Post Form (Only visible to logged in users) -->
-<div id="blog-form-container" class="mb-8 hidden">
-  <form id="blog-form" class="bg-white rounded-lg shadow-md p-6 mb-8">
-    <h3 class="text-xl font-bold mb-2">Naya Blog Likhein</h3>
-    <input type="text" id="blog-title" placeholder="Title" class="w-full border p-2 mb-2 rounded" required="">
-    <div class="flex items-center mb-2">
-      <label class="mr-3 font-medium">Content:</label>
-      <!-- Font size tool buttons -->
-      <button type="button" id="font-decrease" class="bg-gray-200 px-2 py-1 rounded-l text-lg font-bold" title="Decrease font size">A-</button>
-      <button type="button" id="font-increase" class="bg-gray-200 px-2 py-1 rounded-r text-lg font-bold ml-1" title="Increase font size">A+</button>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Blog | Cheerful Taffy</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+  <!-- Quill Editor CSS & JS -->
+  <link href="https://cdn.quilljs.com/1.3.7/quill.snow.css" rel="stylesheet">
+  <script src="https://cdn.quilljs.com/1.3.7/quill.min.js"></script>
+</head>
+<body class="bg-gray-100 font-sans">
+  <nav class="bg-red-600 text-white p-4 sticky top-0 z-10">
+    <div class="container mx-auto flex justify-between items-center">
+      <h1 class="text-2xl font-bold"><a class="hover:text-yellow-300" href="/">Cheerful Taffy Blog</a></h1>
+      <ul class="flex space-x-6">
+        <li><a class="hover:underline" href="/">Home</a></li>
+        <li><a class="hover:underline font-bold underline" href="/blog">Blog</a></li>
+      </ul>
+      <div id="user-info" class="flex items-center space-x-2">
+        <button onclick="showRegisterForm()" class="bg-white text-red-600 px-3 py-1 rounded mr-2">Register</button>
+        <button onclick="showLoginForm()" class="bg-white text-red-600 px-3 py-1 rounded">Login</button>
+      </div>
     </div>
-    <textarea id="blog-content" style="font-size: 1rem;" placeholder="Blog content..." class="w-full border p-2 mb-2 rounded" required=""></textarea>
-    <button type="submit" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">Post</button>
-  </form>
-</div>
-<!-- ... rest of your HTML unchanged ... -->
+  </nav>
+  
+  <!-- Ad & Blog Layout Start -->
+  <div class="flex justify-center items-start gap-4 px-2 py-6">
+    <!-- Left Ad Column -->
+    <div class="flex flex-col gap-4 w-32">
+      <div class="ad-slot bg-gray-200 rounded shadow h-32 flex items-center justify-center text-xs">Ad Slot 1</div>
+      <div class="ad-slot bg-gray-200 rounded shadow h-32 flex items-center justify-center text-xs">Ad Slot 2</div>
+      <div class="ad-slot bg-gray-200 rounded shadow h-32 flex items-center justify-center text-xs">Ad Slot 3</div>
+      <div class="ad-slot bg-gray-200 rounded shadow h-32 flex items-center justify-center text-xs">Ad Slot 4</div>
+      <div class="ad-slot bg-gray-200 rounded shadow h-32 flex items-center justify-center text-xs">Ad Slot 5</div>
+    </div>
+    
+    <!-- Main Blog Content -->
+    <section class="flex-1 max-w-3xl mx-auto px-2">
+      <h2 class="text-4xl font-bold text-center mb-10">Latest Blog Posts</h2>
+      <!-- Blog Post Form (Only visible to logged in users) -->
+      <div id="blog-form-container" class="mb-8 hidden">
+        <form id="blog-form" class="bg-white rounded-lg shadow-md p-6 mb-8">
+          <h3 class="text-xl font-bold mb-2">Naya Blog Likhein</h3>
+          <input type="text" id="blog-title" placeholder="Title" class="w-full border p-2 mb-2 rounded" required="">
+          <!-- Quill Editor Replace Here -->
+          <div id="blog-editor" style="height: 200px; background: white;" class="mb-2"></div>
+          <button type="submit" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">Post</button>
+        </form>
+      </div>
+      <!-- Blog List -->
+      <div id="blog-list"></div>
+    </section>
+    
+    <!-- Right Ad Column -->
+    <div class="flex flex-col gap-4 w-32">
+      <div class="ad-slot bg-gray-200 rounded shadow h-32 flex items-center justify-center text-xs">Ad Slot 6</div>
+      <div class="ad-slot bg-gray-200 rounded shadow h-32 flex items-center justify-center text-xs">Ad Slot 7</div>
+      <div class="ad-slot bg-gray-200 rounded shadow h-32 flex items-center justify-center text-xs">Ad Slot 8</div>
+      <div class="ad-slot bg-gray-200 rounded shadow h-32 flex items-center justify-center text-xs">Ad Slot 9</div>
+      <div class="ad-slot bg-gray-200 rounded shadow h-32 flex items-center justify-center text-xs">Ad Slot 10</div>
+    </div>
+  </div>
+  <!-- Ad & Blog Layout End -->
+  
+  <footer class="bg-red-600 text-white p-4 mt-16">
+    <div class="container mx-auto text-center">
+      <p>© 2025 Cheerful Taffy. All rights reserved.</p>
+    </div>
+  </footer>
+  <script>
+    // Firebase Config
+    const firebaseConfig = {
+      apiKey: "AIzaSyDDnYzPqRODyC41bfl1p_4cf7b2Mbe_2JI",
+      authDomain: "my-blog-66d3f.firebaseapp.com",
+      projectId: "my-blog-66d3f",
+      storageBucket: "my-blog-66d3f.appspot.com",
+      messagingSenderId: "932194405146",
+      appId: "1:932194405146:web:dea2830c55f99ea99dbaa3",
+      measurementId: "G-GJL42Q0PSP"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
 
-<script>
-  // ... your existing scripts above ...
-
-  // Font size increase/decrease tool for textarea
-  document.addEventListener("DOMContentLoaded", function() {
-    const textarea = document.getElementById("blog-content");
-    const increaseBtn = document.getElementById("font-increase");
-    const decreaseBtn = document.getElementById("font-decrease");
-    let fontSize = 1; // rem
-
-    if (increaseBtn && decreaseBtn && textarea) {
-      increaseBtn.onclick = function() {
-        fontSize += 0.1;
-        textarea.style.fontSize = fontSize + "rem";
-      };
-      decreaseBtn.onclick = function() {
-        if (fontSize > 0.6) {
-          fontSize -= 0.1;
-          textarea.style.fontSize = fontSize + "rem";
-        }
-      };
+    // Auth UI
+    function showLogin() {
+      const userInfo = document.getElementById('user-info');
+      if(userInfo){
+        userInfo.innerHTML = `
+          <button onclick="showRegisterForm()" class="bg-white text-red-600 px-3 py-1 rounded mr-2">Register</button>
+          <button onclick="showLoginForm()" class="bg-white text-red-600 px-3 py-1 rounded">Login</button>
+        `;
+      }
     }
-  });
+    function updateUserUI(user) {
+      const userInfo = document.getElementById('user-info');
+      const blogFormContainer = document.getElementById('blog-form-container');
+      if(user) {
+        if(userInfo){
+          userInfo.innerHTML = `
+            <span class="mr-2">Hello, ${user.email}</span>
+            <button onclick="logout()" class="bg-white text-red-600 px-3 py-1 rounded">Logout</button>
+          `;
+        }
+        if(blogFormContainer){
+          blogFormContainer.classList.remove('hidden');
+        }
+      } else {
+        showLogin();
+        if(blogFormContainer){
+          blogFormContainer.classList.add('hidden');
+        }
+      }
+    }
+    function showRegisterForm() {
+      let email = prompt("Email:");
+      let pass = prompt("Password:");
+      if(email && pass)
+        auth.createUserWithEmailAndPassword(email, pass).catch(e=>alert(e.message));
+    }
+    function showLoginForm() {
+      let email = prompt("Email:");
+      let pass = prompt("Password:");
+      if(email && pass)
+        auth.signInWithEmailAndPassword(email, pass).catch(e=>alert(e.message));
+    }
+    function logout() { auth.signOut(); }
 
-  // ... rest of your previous script as it is ...
-</script>
+    auth.onAuthStateChanged(updateUserUI);
+
+    // --- Quill Editor for Blog Form ---
+    let quillBlog;
+    window.addEventListener('DOMContentLoaded', () => {
+      const blogEditorDiv = document.getElementById('blog-editor');
+      if(blogEditorDiv) {
+        quillBlog = new Quill('#blog-editor', {
+          theme: 'snow',
+          placeholder: 'Blog content...',
+          modules: {
+            toolbar: [
+              ['bold', 'italic', 'underline', 'link'],
+              [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+              ['clean']
+            ]
+          }
+        });
+      }
+    });
+
+    // Blog Form Handler (now uses Quill HTML)
+    const blogForm = document.getElementById('blog-form');
+    if(blogForm){
+      blogForm.addEventListener('submit', async e => {
+        e.preventDefault();
+        const title = document.getElementById('blog-title').value.trim();
+        const content = quillBlog ? quillBlog.root.innerHTML.trim() : '';
+        const user = auth.currentUser;
+        if (!user) return alert("Login required");
+        if (!title || content === '<p><br></p>' || !content) return alert("Title aur content likhna zaruri hai!");
+        await db.collection('blogs').add({
+          title, content,
+          author: user.email,
+          created: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        blogForm.reset();
+        if(quillBlog) quillBlog.setText('');
+      });
+    }
+
+    // Render Comments Section for Each Blog
+    function renderComments(blogId, container) {
+      const commentsDiv = document.createElement('div');
+      commentsDiv.className = "mt-4";
+      commentsDiv.innerHTML = `<h4 class="font-semibold mb-2">Comments</h4><div id="comments-${blogId}"></div>
+        <form id="comment-form-${blogId}" class="flex space-x-2 mt-2">
+          <input type="text" id="comment-input-${blogId}" class="border p-1 rounded flex-1" placeholder="Write a comment..." required>
+          <button type="submit" class="bg-red-600 text-white px-2 py-1 rounded">Post</button>
+        </form>
+      `;
+      container.appendChild(commentsDiv);
+
+      // Load comments live
+      db.collection('blogs').doc(blogId).collection('comments').orderBy('created')
+        .onSnapshot(snap => {
+          const commentsEl = document.getElementById(`comments-${blogId}`);
+          if (!commentsEl) return; // Defensive check
+          commentsEl.innerHTML = "";
+          snap.forEach(doc => {
+            const c = doc.data();
+            commentsEl.innerHTML += `<div class="p-2 border-b"><b>${c.author}</b>: ${c.text}</div>`;
+          });
+        });
+
+      // Comment Form Handler
+      const commentForm = document.getElementById(`comment-form-${blogId}`);
+      if(commentForm){
+        commentForm.addEventListener('submit', async e => {
+          e.preventDefault();
+          const user = auth.currentUser;
+          if(!user) return alert("Login required for comment");
+          const input = document.getElementById(`comment-input-${blogId}`);
+          if (!input) return;
+          const text = input.value.trim();
+          if (!text) return;
+          await db.collection('blogs').doc(blogId).collection('comments').add({
+            text, author: user.email, created: firebase.firestore.FieldValue.serverTimestamp()
+          });
+          input.value = "";
+        });
+      }
+    }
+
+    // Blog List Show (live update)
+    db.collection('blogs').orderBy('created', 'desc').onSnapshot(snap => {
+      const blogList = document.getElementById('blog-list');
+      if (!blogList) return; // Defensive: abort if not found
+      blogList.innerHTML = "";
+      if (snap.empty) {
+        // Default demo blog post if no real blog yet
+        const demoDiv = document.createElement('div');
+        demoDiv.className = "bg-white rounded-lg shadow-md p-6 mb-8";
+        demoDiv.innerHTML = `
+          <h3 class="text-2xl font-bold mb-2">Demo Blog Post</h3>
+          <p class="text-gray-600 text-sm mb-2">Author: Admin | 8 June 2025</p>
+          <p class="mb-4">Yeh demo blog post hai. Jab koi naya blog likhega, vo yahan dikhne lagega. Neeche comment ka option diya gaya hai!</p>
+          <div class="mt-4">
+            <h4 class="font-semibold mb-2">Comments</h4>
+            <div>
+              <div class="p-2 border-b"><b>User1</b>: Bahut accha blog hai!</div>
+              <div class="p-2 border-b"><b>User2</b>: Shukriya share karne ke liye.</div>
+            </div>
+            <form class="flex space-x-2 mt-2" onsubmit="alert('Demo post par comment nahi kar sakte!');return false;">
+              <input type="text" class="border p-1 rounded flex-1" placeholder="Write a comment..." required>
+              <button type="submit" class="bg-red-600 text-white px-2 py-1 rounded">Post</button>
+            </form>
+          </div>
+        `;
+        blogList.appendChild(demoDiv);
+        return;
+      }
+      snap.forEach(doc => {
+        const blog = doc.data();
+        let created = '';
+        if (blog.created && blog.created.toDate) {
+          created = blog.created.toDate().toLocaleString();
+        }
+        const div = document.createElement('div');
+        div.className = "bg-white rounded-lg shadow-md p-6 mb-8";
+        div.innerHTML = `
+          <h3 class="text-2xl font-bold mb-2">${blog.title}</h3>
+          <p class="text-gray-600 text-sm mb-2">Author: ${blog.author || 'Unknown'} | ${created}</p>
+          <div class="mb-4">${blog.content}</div>
+        `;
+        renderComments(doc.id, div);
+        blogList.appendChild(div);
+      });
+    });
+  </script>
+</body>
+</html>
