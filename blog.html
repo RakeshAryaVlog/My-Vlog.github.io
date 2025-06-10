@@ -10,6 +10,9 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+  <!-- Quill Editor CSS & JS -->
+  <link href="https://cdn.quilljs.com/1.3.7/quill.snow.css" rel="stylesheet">
+  <script src="https://cdn.quilljs.com/1.3.7/quill.min.js"></script>
 </head>
 <body class="bg-gray-100 font-sans">
   <nav class="bg-red-600 text-white p-4 sticky top-0 z-10">
@@ -45,7 +48,7 @@
         <form id="blog-form" class="bg-white rounded-lg shadow-md p-6 mb-8">
           <h3 class="text-xl font-bold mb-2">Naya Blog Likhein</h3>
           <input type="text" id="blog-title" placeholder="Title" class="w-full border p-2 mb-2 rounded" required="">
-          <textarea id="blog-content" placeholder="Blog content..." class="w-full border p-2 mb-2 rounded" required=""></textarea>
+          <div id="blog-editor" style="height: 200px; background: white;" class="mb-2"></div>
           <button type="submit" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">Post</button>
         </form>
       </div>
@@ -69,7 +72,7 @@
       <p>© 2025 Cheerful Taffy. All rights reserved.</p>
     </div>
   </footer>
-  <!-- Rest of your script is the same as before -->
+
   <script>
     // Firebase Config
     const firebaseConfig = {
@@ -131,22 +134,42 @@
 
     auth.onAuthStateChanged(updateUserUI);
 
-    // Blog Form Handler
+    // --- Quill Editor for Blog Form ---
+    let quillBlog;
+    window.addEventListener('DOMContentLoaded', () => {
+      const blogEditorDiv = document.getElementById('blog-editor');
+      if(blogEditorDiv) {
+        quillBlog = new Quill('#blog-editor', {
+          theme: 'snow',
+          placeholder: 'Blog content...',
+          modules: {
+            toolbar: [
+              ['bold', 'italic', 'underline', 'link'],
+              [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+              ['clean']
+            ]
+          }
+        });
+      }
+    });
+
+    // Blog Form Handler (now uses Quill HTML)
     const blogForm = document.getElementById('blog-form');
     if(blogForm){
       blogForm.addEventListener('submit', async e => {
         e.preventDefault();
         const title = document.getElementById('blog-title').value.trim();
-        const content = document.getElementById('blog-content').value.trim();
+        const content = quillBlog ? quillBlog.root.innerHTML.trim() : '';
         const user = auth.currentUser;
         if (!user) return alert("Login required");
-        if (!title || !content) return alert("Title aur content likhna zaruri hai!");
+        if (!title || content === '<p><br></p>' || !content) return alert("Title aur content likhna zaruri hai!");
         await db.collection('blogs').add({
           title, content,
           author: user.email,
           created: firebase.firestore.FieldValue.serverTimestamp()
         });
         blogForm.reset();
+        if(quillBlog) quillBlog.setText('');
       });
     }
 
@@ -232,7 +255,7 @@
         div.innerHTML = `
           <h3 class="text-2xl font-bold mb-2">${blog.title}</h3>
           <p class="text-gray-600 text-sm mb-2">Author: ${blog.author || 'Unknown'} | ${created}</p>
-          <p class="mb-4">${blog.content}</p>
+          <div class="mb-4">${blog.content}</div>
         `;
         renderComments(doc.id, div);
         blogList.appendChild(div);
